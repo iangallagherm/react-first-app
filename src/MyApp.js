@@ -6,13 +6,35 @@ import axios from 'axios';
 function MyApp() {
   const [characters, setCharacters] = useState([]);  
 
+  async function makeDeleteCall(person) {
+      try {
+          const response = await axios.delete('http://localhost:5000/users/' + person.id);
+          return response;
+      } catch(error) {
+          console.log(error);
+          return false;
+      }
+  }
+
   function removeOneCharacter (index) {
-      makeDeleteCall(characters[index])
-      // Want to delete character regardless of whether backend DELETE request finds character
-      const updated = characters.filter((character, i) => {
-          return i !== index
+      makeDeleteCall(characters[index]).then( result => {
+          if (result && result.status === 204) {
+              const updated = characters.filter((character, i) => {
+                  return i !== index
+              });
+              setCharacters(updated);
+          }
       });
-      setCharacters(updated);
+  }
+
+  async function makePostCall(person) {
+      try {
+          const response = await axios.post('http://localhost:5000/users', person);
+          return response;
+      } catch(error) {
+          console.log(error);
+          return false;
+      }
   }
 
   function updateList(person) {
@@ -32,33 +54,12 @@ function MyApp() {
       }
   }
 
-  async function makePostCall(person) {
-      try {
-          const response = await axios.post('http://localhost:5000/users', person);
-          return response;
-      } catch(error) {
-          console.log(error);
-          return false;
-      }
-  }
-
-  async function makeDeleteCall(person) {
-      try {
-          const response = await axios.delete('http://localhost:5000/users/' + person.id);
-          return response;
-      } catch(error) {
-          console.log(error);
-          return false;
-      }
-  }
-
   useEffect(() => {
       fetchAll().then( result => {
           if (result)
               setCharacters(result);
       });
   }, [] );
-
 
   return (
     <div className="container">
